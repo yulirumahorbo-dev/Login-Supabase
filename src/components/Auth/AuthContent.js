@@ -1,31 +1,15 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import { GlobalStyles } from "../../constants/styles";
 import { useNavigation } from "@react-navigation/native";
-import Input from "../UI/Input";
-import InputSecure from "../UI/InputSecure";
-import Button from "../UI/Button";
 import FlatButton from "../UI/FlatButton";
 import { useEffect, useState } from "react";
+import AuthForm from "./AuthForm";
 import { supabase } from "../../lib/supabase";
-
-// const data = [
-//   "Apple",
-//   "Banana",
-//   "Orange",
-//   "Grapes",
-//   "Pineapple",
-//   "Papaya",
-//   "Peach",
-// ];
 
 export default function AuthContent({ isLogin, onAuthenticate }) {
   const navigation = useNavigation();
 
   const [users, setUsers] = useState([]);
-  const [enteredName, setEnteredName] = useState("");
-  const [enteredEmail, setEnteredEmail] = useState("");
-  const [enteredPassword, setEnteredPassword] = useState("");
-  const [filteredName, setFilteredName] = useState([]);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -42,39 +26,34 @@ export default function AuthContent({ isLogin, onAuthenticate }) {
     fetchUsers();
   }, []);
 
-  function updateInputValueHandler(inputType, enteredValue) {
-    switch (inputType) {
-      case "name":
-        setEnteredName(enteredValue);
-        if (enteredValue) {
-          const suggestions = users.filter((item) =>
-            item.full_name.toLowerCase().startsWith(enteredValue.toLowerCase())
-          );
-          setFilteredName(suggestions);
-        } else {
-          setFilteredName([]);
-        }
-        break;
-      case "email":
-        setEnteredEmail(enteredValue);
-        break;
-      case "password":
-        setEnteredPassword(enteredValue);
-        break;
+  const [credentialsInvalid, setCredentialsInvalid] = useState({
+    name: false,
+    email: false,
+    password: false,
+  });
+
+  function submitHandler(credentials) {
+    let { name, email, password } = credentials;
+
+    name = name.trim();
+    email = email.trim();
+    password = password.trim();
+
+    const nameIsValid = users.some((item) => item.full_name === name);
+    const emailIsValid =
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+    const passwordIsValid = password.length > 6;
+
+    if (!emailIsValid || !passwordIsValid || (!isLogin && !nameIsValid)) {
+      Alert.alert("Invalid input", "Please check your entered credentials.");
+      setCredentialsInvalid({
+        name: !nameIsValid,
+        email: !emailIsValid,
+        password: !passwordIsValid,
+      });
+      return;
     }
-  }
-
-  function handleSelectItem(item) {
-    setEnteredName(item);
-    setFilteredName([]);
-  }
-
-  function submitHandler() {
-    onAuthenticate({
-      name: enteredName,
-      email: enteredEmail,
-      password: enteredPassword,
-    });
+    onAuthenticate({ name, email, password });
   }
 
   function switchAuthModeHandler() {
@@ -87,44 +66,11 @@ export default function AuthContent({ isLogin, onAuthenticate }) {
 
   return (
     <View style={styles.authContent}>
-      {!isLogin && (
-        <>
-          <Input
-            label="Name"
-            placeholder="Your Name"
-            onUpdateValue={updateInputValueHandler.bind(this, "name")}
-            value={enteredName}
-          />
-
-          {filteredName.length > 0 && (
-            <FlatList
-              data={filteredName}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <Pressable onPress={() => handleSelectItem(item.full_name)}>
-                  <Text style={styles.suggestion}>{item.full_name}</Text>
-                </Pressable>
-              )}
-            />
-          )}
-        </>
-      )}
-      <Input
-        label="Email Address"
-        placeholder="youremail@gmail.com"
-        keyboardType="email-address"
-        onUpdateValue={updateInputValueHandler.bind(this, "email")}
-        value={enteredEmail}
+      <AuthForm
+        isLogin={isLogin}
+        onSubmit={submitHandler}
+        credentialsInvalid={credentialsInvalid}
       />
-
-      <InputSecure
-        label="Password"
-        placeholder="******"
-        onUpdateValue={updateInputValueHandler.bind(this, "password")}
-        value={enteredPassword}
-      />
-
-      <Button onPress={submitHandler}>{isLogin ? "Log In" : "Sign Up"}</Button>
 
       <View style={styles.buttons}>
         <FlatButton onPress={switchAuthModeHandler}>

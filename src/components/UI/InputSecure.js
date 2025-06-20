@@ -9,18 +9,25 @@ export default function InputSecure({
   keyboardType,
   onUpdateValue,
   value,
-  secure,
-  onPress,
+  isInvalid,
 }) {
   const [passwordVisible, setPasswordVisible] = useState(false);
   return (
     <View style={styles.formContainer}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, isInvalid && styles.labelInvalid]}>
+        {label}
+      </Text>
 
-      <View style={styles.inputContainer}>
+      <View
+        style={[
+          styles.inputContainer,
+          isInvalid && styles.inputContainerInvalid,
+        ]}
+      >
         <TextInput
-          style={styles.input}
+          style={[styles.input, isInvalid && styles.inputInvalid]}
           placeholder={placeholder}
+          placeholderTextColor={GlobalStyles.colors.gray100}
           keyboardType={keyboardType}
           autoCapitalize="none"
           onChangeText={onUpdateValue}
@@ -32,6 +39,7 @@ export default function InputSecure({
           style={({ pressed }) => [
             styles.toggleButton,
             { opacity: pressed ? 0.75 : 1 },
+            isInvalid && styles.toggleButtonInvalid,
           ]}
         >
           {passwordVisible ? (
@@ -61,6 +69,9 @@ const styles = StyleSheet.create({
     color: GlobalStyles.colors.primary800,
     marginBottom: 4,
   },
+  labelInvalid: {
+    color: GlobalStyles.colors.error500,
+  },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -69,13 +80,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
   },
+  inputContainerInvalid: {
+    borderColor: GlobalStyles.colors.error500,
+    backgroundColor: GlobalStyles.colors.error50,
+  },
   input: {
     flex: 1,
     padding: 12,
     backgroundColor: GlobalStyles.colors.primary0,
   },
+  inputInvalid: {
+    backgroundColor: GlobalStyles.colors.error50,
+  },
   toggleButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    marginHorizontal: 12,
+    marginVertical: 10,
+  },
+  toggleButtonInvalid: {
+    backgroundColor: GlobalStyles.colors.error50,
   },
 });

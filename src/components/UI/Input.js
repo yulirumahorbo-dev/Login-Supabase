@@ -18,6 +18,7 @@ export default function Input({
       <TextInput
         style={[styles.input, isInvalid && styles.inputInvalid]}
         placeholder={placeholder}
+        placeholderTextColor={GlobalStyles.colors.gray100}
         keyboardType={keyboardType}
         autoCapitalize="none"
         onChangeText={onUpdateValue}
@@ -48,6 +49,6 @@ const styles = StyleSheet.create({
   },
   inputInvalid: {
     borderColor: GlobalStyles.colors.error500,
-    backgroundColor: GlobalStyles.colors.error500,
+    backgroundColor: GlobalStyles.colors.error50,
   },
 });
