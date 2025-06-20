@@ -2,6 +2,7 @@
   "expo": {
     "name": "Login-Supabase",
     "slug": "Login-Supabase",
+    "scheme": "Login-Supabase",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
