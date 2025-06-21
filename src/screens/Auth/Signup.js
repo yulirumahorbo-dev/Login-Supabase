@@ -1,35 +1,52 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { View, Text, StyleSheet, Alert } from "react-native";
 import { supabase } from "../../lib/supabase";
 import { GlobalStyles } from "../../constants/styles";
 import AuthContent from "../../components/Auth/AuthContent";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
+import { AuthContext } from "../../store/auth-context";
 
 export default function Signup({ navigation }) {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const { signUp } = useContext(AuthContext);
 
-  const signupHandler = async ({
-    email = enteredEmail,
-    password = enteredPassword,
-  }) => {
+  async function signupHandler({ name, email, password }) {
     setIsAuthenticating(true);
     try {
-      let response = await supabase.auth.signUp({ email, password });
+      const { user } = await signUp(name, email, password);
 
-      const { data } = response;
-
-      console.log(data);
-      console.log(data.user.email);
-      navigation.navigate("Home");
+      if (user) {
+        setIsAuthenticating(false);
+        navigation.navigate("Home");
+      }
     } catch (error) {
-      console.log(error);
-      Alert.alert(
-        "Authetication failed!",
-        "Could not create user, please check your input and try again later."
-      );
+      Alert.alert("Sign Up Failed", error.message);
       setIsAuthenticating(false);
     }
-  };
+  }
+
+  // const signupHandler = async ({
+  //   email = enteredEmail,
+  //   password = enteredPassword,
+  // }) => {
+  //   setIsAuthenticating(true);
+  //   try {
+  //     let response = await supabase.auth.signUp({ email, password });
+
+  //     const { data } = response;
+
+  //     console.log(data);
+  //     console.log(data.user.email);
+  //     navigation.navigate("Home");
+  //   } catch (error) {
+  //     console.log(error);
+  //     Alert.alert(
+  //       "Authetication failed!",
+  //       "Could not create user, please check your input and try again later."
+  //     );
+  //     setIsAuthenticating(false);
+  //   }
+  // };
 
   if (isAuthenticating) {
     return <LoadingOverlay message="Creating user..." />;
