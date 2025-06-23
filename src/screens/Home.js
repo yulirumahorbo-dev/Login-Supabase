@@ -6,16 +6,15 @@ import { useContext } from "react";
 import { AuthContext } from "../store/auth-context";
 
 export default function Home() {
-  const { userProfile, logout } = useContext(AuthContext);
+  const { userProfile, isLoading, logout } = useContext(AuthContext);
 
-  // async function onSubmit() {
-  //   await supabase.auth.signOut();
-  //   navigation.navigate("Login");
-  // }
+  if (isLoading || !userProfile) {
+    return <ActivityIndicator />;
+  }
 
   return (
     <View style={styles.container}>
-      <Text>Welcome, {userProfile?.name || "User"}!</Text>
+      <Text>Welcome, {userProfile.name || "User"}!</Text>
       <Button onPress={logout}>Logout</Button>
     </View>
   );

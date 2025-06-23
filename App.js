@@ -8,15 +8,20 @@ import Signup from "./src/screens/Auth/Signup";
 import AuthContextProvider, { AuthContext } from "./src/store/auth-context";
 import { useContext } from "react";
 import { ActivityIndicator } from "react-native";
+import LoadingOverlay from "./src/components/UI/LoadingOverlay";
 
 const Stack = createNativeStackNavigator();
 
 function AppNavigator() {
-  const { session } = useContext(AuthContext);
+  const { session, isLoading, userProfile } = useContext(AuthContext);
+
+  if (isLoading) {
+    return <LoadingOverlay message="Loading..." />;
+  }
 
   return (
     <Stack.Navigator>
-      {session ? (
+      {session && userProfile ? (
         <Stack.Screen
           name="Home"
           component={Home}
